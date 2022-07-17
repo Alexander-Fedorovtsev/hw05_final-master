@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% load cache %}
+{% block content %}
+  <h1>Последние обновления на сайте</h1>
+  <div>
+    {% include 'posts/includes/switcher.html' %}
+    {% cache 20 index_page %}
+    {% for post in page_obj %}
+      <ul>
+        <li>Автор: {{ post.author.get_full_name }}</li>
+        <li>Группа: {{ post.group }}</li>
+        <li>Дата публикации: {{ post.pub_date|date:"d E Y" }}</li>
+      </ul>
+      {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+      <img class="card-img my-2" src="{{ im.url }}">
+    {% endthumbnail %}
+    <p>
+      {{ post.text }}
+    </p>
+    <a href="{% url 'posts:post_detail' post.id %}">подробная информация</a>
+    <br>
+    <a href="{% url 'posts:profile' post.author %}">профиль автора</a>
+    <br>
+    {% if post.group %}
+      <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
+    {% endif %}
+    {% if not forloop.last %}<hr />{% endif %}
+  {% endfor %}
+{% endcache %}
+{% include 'includes/paginator.html' %}
+</div>
+{% endblock %}
